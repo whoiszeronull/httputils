@@ -14,6 +14,11 @@ public class HttpUtilsTest {
 
 	private HttpUtils hu = new HttpUtils();
 
+//	Number n;
+//	Integer i;
+//	ArrayList al;
+//	HashMap m;
+//	StringCoding sc;
 //	String url = "http://www.desayopto.cn";
 //	String url = "http://www.mrled.cn/en/index.html";
 	String url = "http://www.absen.cn/";
