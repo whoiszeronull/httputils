@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -50,9 +51,31 @@ public class HttpUtils {
 
 		try (CloseableHttpClient httpclient = HttpClients.createDefault();) {
 			HttpGet httpget = new HttpGet(url);
+			httpRequestDisguise(httpget);
 			ResponseHandler<String> responseHandler = new ResponseHandlerString();
 			return httpclient.execute(httpget, responseHandler);
 		}
+	}
+
+//request headers examples as bellow:(20190527): 
+//	:authority:www.google.com
+//	:method:GET
+//	:path:/search?q=LED+display&ei=AunrXJSXHK62gge37JfgDg&start=10&sa=N&ved=0ahUKEwiUoMeh67viAhUum-AKHTf2BewQ8tMDCNoC&biw=1745&bih=536
+//	:scheme:https
+//	accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
+//	accept-encoding:gzip, deflate, br
+//	accept-language:zh-CN,zh;q=0.9
+//	cookie:CGIC=IlV0ZXh0L2h0bWwsYXBwbGljYXRpb24veGh0bWwreG1sLGFwcGxpY2F0aW9uL3htbDtxPTAuOSxpbWFnZS93ZWJwLGltYWdlL2FwbmcsKi8qO3E9MC44; CONSENT=YES+HK.zh-CN+; HSID=A9bTO2JrUSEYujboZ; SSID=AxArkapH1-3oIflUB; APISID=uZ2lNHtGYZT-aaMj/A_ey4-YiRoC-A8wjy; SAPISID=bcKxwfikEpVAdf01/ARTHiEosJ4D6BrdJB; SID=Uwd4TZFe98NCtG4g572F2mCdJR3D_g7dF57jpS1bYhfmUHSa58bhoelbAuK0dfuJ2-da0A.; SIDCC=AN0-TYsTA6Fx-T_j7i_9TgsrFqheNNkSRItA3MCNnJEfUcWTgH1riTLKh_RJE8_Heapl8N34GjQ; ANID=AHWqTUnusBmQvSx6HrJRuSEnjnj_4NL8w7XNCtlPURAJPXVU5QFK-R4ECvPx18sT; NID=184=anFEaf4SMDYXk9e_YJd9fjydriQM9DeFuEUYZM1PalQ_7yk07sZuASaPNeXisn__MQCkOUzql033wkBvWi2zR5J7N2N5Ck8TlnV0TS0i9X4KUid7eCq3ryZuLnXP3yJ4ANaS1UE0NiZq4gMo7QVLbIhb6zPZMZAvYpSjiT7YFsabdJKhKdPsowboDyWSMiWGBV-cqjkndzcx6Nnu9dbr5NqzommSRQXKcyKjMs_Dq_vqf0Sj; DV=w4Hqv3Q6vcot8D1GDcTKiA9zWmOYr1Z_Q3x9eM9cFwIAAAA; 1P_JAR=2019-05-27-13; UULE=a+cm9sZToxIHByb2R1Y2VyOjEyIHByb3ZlbmFuY2U6NiB0aW1lc3RhbXA6MTU1ODk2NDQ4NDEyMzAwMCBsYXRsbmd7bGF0aXR1ZGVfZTc6NDA3NjQ0MzUyIGxvbmdpdHVkZV9lNzotNzM5ODAwODM4fSByYWRpdXM6NTI3MDA=
+//	referer:https://www.google.com/
+//	upgrade-insecure-requests:1
+//	user-agent:Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36 QIHU 360SE
+
+	// to disguise the request , reduce the chance for server to block the requests.
+	private static void httpRequestDisguise(HttpGet httpget) {
+
+		// 增加个 user-agent, 对于使用google 有帮助
+		httpget.addHeader("user-agent",
+				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36 QIHU 360SE");
 	}
 
 	/**
@@ -291,6 +314,14 @@ public class HttpUtils {
 		return redir;
 	}
 
+	/**
+	 * 
+	 * @param keyWord
+	 * @return
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public static Set<String> getBaiduSearchResultActualLinks(String keyWord)
 			throws ClientProtocolException, IOException, URISyntaxException {
 		Set<String> links = new HashSet<String>();
@@ -306,4 +337,6 @@ public class HttpUtils {
 
 		return null;
 	}
+
+	
 }

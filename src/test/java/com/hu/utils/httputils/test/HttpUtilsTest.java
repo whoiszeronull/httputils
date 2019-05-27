@@ -5,13 +5,13 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
 
+import com.hu.utils.httputils.GoogleSpider;
 import com.hu.utils.httputils.HttpUtils;
 
 public class HttpUtilsTest {
@@ -110,7 +110,7 @@ public class HttpUtilsTest {
 		System.out.println("final redirected links: " + finalRedirec); // result is : https://www.cnledw.com/
 	}
 
-	@Test
+//	@Test
 	public void getBaiduSearchResultActualLinks() throws ClientProtocolException, IOException, URISyntaxException {
 		Set<String> links = HttpUtils.getBaiduSearchResultActualLinks("LED");
 		
@@ -120,4 +120,21 @@ public class HttpUtilsTest {
 			System.out.println(string);
 		}
 	}
+	
+//	@Test
+	public void getGoogleFirstPageTest() throws ClientProtocolException, IOException {
+		String result = GoogleSpider.getGoogleFirstPage("led display");
+		FileUtils.writeStringToFile(new File("D:\\tesgoogle.html"), result, "utf-8");
+//		System.out.println(result);
+	}
+	
+	@Test
+	public void getGoogleNonAdLinks() throws IOException {
+		String googleFirstPage = GoogleSpider.getGoogleFirstPage("led显示屏");
+		Set<String> links = GoogleSpider.getGoogleNonAdLinks(googleFirstPage);
+		for (String link : links) {
+			System.out.println(link);
+		}
+	}
+
 }
