@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -113,28 +114,35 @@ public class HttpUtilsTest {
 //	@Test
 	public void getBaiduSearchResultActualLinks() throws ClientProtocolException, IOException, URISyntaxException {
 		Set<String> links = HttpUtils.getBaiduSearchResultActualLinks("LED");
-		
+
 		System.out.println(links.size());
-		
+
 		for (String string : links) {
 			System.out.println(string);
 		}
 	}
-	
+
 //	@Test
 	public void getGoogleFirstPageTest() throws ClientProtocolException, IOException {
 		String result = GoogleSpider.getGoogleFirstPage("led display");
 		FileUtils.writeStringToFile(new File("D:\\tesgoogle.html"), result, "utf-8");
 //		System.out.println(result);
 	}
-	
-	@Test
+
+//	@Test
 	public void getGoogleNonAdLinks() throws IOException {
 		String googleFirstPage = GoogleSpider.getGoogleFirstPage("led显示屏");
-		Set<String> links = GoogleSpider.getGoogleNonAdLinks(googleFirstPage);
+		List<String> links = GoogleSpider.getGoogleNonAdLinks(googleFirstPage);
 		for (String link : links) {
 			System.out.println(link);
 		}
 	}
 
+	@Test
+	public void verifyURLtest() throws ClientProtocolException, IOException {
+//		String url = "https://www.made-in-china.com";
+//		String url = "http://www.dancefloors.co.uk";
+		String url = "http://premierpartyevents.co.uk";
+		System.out.println(HttpUtils.verifyURL(url));
+	}
 }

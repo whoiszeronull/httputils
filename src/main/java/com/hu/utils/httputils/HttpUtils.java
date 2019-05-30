@@ -22,6 +22,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.ContentType;
@@ -76,6 +77,66 @@ public class HttpUtils {
 		// 增加个 user-agent, 对于使用google 有帮助
 		httpget.addHeader("user-agent",
 				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36 QIHU 360SE");
+	}
+
+	// to disguise the request , reduce the chance for server to block the requests.
+	private static void httpHeadDisguise(HttpHead httphead) {
+
+		// 增加个 user-agent, 对于使用google 有帮助
+		httphead.addHeader("user-agent",
+				"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36 QIHU 360SE");
+	}
+
+	/**
+	 * Verify the given url is existing and return the complete url form back with
+	 * proper protocals.
+	 * 
+	 * @param url the given url need to be verified
+	 * @return true if response status code between 200-300, other wise false.
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 */
+	public static boolean verifyURL(String url) throws ClientProtocolException, IOException {
+
+		try (CloseableHttpClient httpclient = HttpClients.createDefault();) {
+			HttpHead httpHead = new HttpHead(url);
+			httpHeadDisguise(httpHead);
+			CloseableHttpResponse httpResponse = httpclient.execute(httpHead);
+			int status = httpResponse.getStatusLine().getStatusCode();
+			if (status >= 200 && status < 300) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Verify the given the URL, and correct the protocol and return the url with proper protocal, null if any problem during verifying.
+	 * @param url the url to verify whether is responding or not.
+	 * @return the responding url string with proper protocal pre-fix, or null if url not responding.
+	 */
+	public static String verifyAndReturnCompleteURLWithProtocal(String url) {
+		try {
+			if (HttpUtils.verifyURL(url)) {
+				return url;
+			}
+		} catch (IOException e) {
+			try {
+				if (HttpUtils.verifyURL("http://" + url)) {
+					return "http://" + url;
+				}
+			} catch (Exception e1) {
+				try {
+					if (HttpUtils.verifyURL("https://" + url)) {
+						return "http:s//" + url;
+					}
+				} catch (Exception e2) {
+					return null;
+				}
+
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -217,7 +278,7 @@ public class HttpUtils {
 				}
 				return null;
 			} else {
-				throw new ClientProtocolException("Unexpected response status: " + status);
+				throw new RuntimeException(new ClientProtocolException("Unexpected response status: " + status));
 			}
 		}
 
@@ -338,5 +399,4 @@ public class HttpUtils {
 		return null;
 	}
 
-	
 }
